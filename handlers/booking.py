@@ -1,12 +1,24 @@
 from aiogram import Router, F, Bot
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import (
+    Message,
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton
+)
 from aiogram.fsm.context import FSMContext
+from database import get_user_bookings
 
-from database import save_client
+
+
+from database import (
+    save_client,
+    get_user_bookings,
+    is_time_taken
+)
 from keyboards import (
-    time_keyboard,
     service_keyboard,
-    cancel_keyboard
+    get_date_keyboard,
+    get_time_keyboard
 )
 from states import Order
 from config import ADMIN_ID
@@ -15,7 +27,7 @@ router = Router()
 
 # ---------- ПРАЙС ----------
 
-@router.message(F.text == "💈 Прайс")
+@router.message(F.text == "💈 Услуги")
 async def price(message: Message):
     await message.answer(
         "Стрижка — 1500₽\n"
@@ -82,16 +94,31 @@ async def get_service(
     await state.update_data(service=callback.data)
 
     await callback.message.answer(
-        "Выберите время:",
-        reply_markup=time_keyboard
+        "📅 Выберите дату:",
+        reply_markup=get_date_keyboard()
+    )
+
+    await state.set_state(Order.date)
+
+    await callback.answer()
+
+@router.callback_query(Order.date)
+async def get_date(
+    callback: CallbackQuery,
+    state: FSMContext
+):
+
+    await state.update_data(date=callback.data)
+
+    await callback.message.answer(
+        "⏰ Выберите время:",
+        reply_markup=get_time_keyboard(callback.data)
     )
 
     await state.set_state(Order.time)
 
-    await callback.answer()
-
-# ---------- ВРЕМЯ ----------
-
+    await callback.answer() 
+    
 @router.callback_query(Order.time)
 async def get_time(
     callback: CallbackQuery,
@@ -99,25 +126,35 @@ async def get_time(
     bot: Bot
 ):
 
-    await state.update_data(time=callback.data)
-
     data = await state.get_data()
 
-    client_id = save_client(
-    data["name"],
-    data["phone"],
-    data["service"],
-    data["time"]
-)
+    date = data["date"]
+    time = callback.data
 
-    cancel_keyboard.inline_keyboard[0][0].callback_data = (
-    f"cancel_{client_id}"
-)
+    if is_time_taken(date, time):
+
+        await callback.message.answer(
+            "❌ Это время уже занято"
+        )
+
+        await callback.answer()
+
+        return
+
+    save_client(
+        callback.from_user.id,
+        data["name"],
+        data["phone"],
+        data["service"],
+        date,
+        time
+    )
 
     await callback.message.answer(
-    f"✅ Вы записаны на {data['time']}",
-    reply_markup=cancel_keyboard
-)
+        f"✅ Вы записаны!\n\n"
+        f"📅 Дата: {date}\n"
+        f"⏰ Время: {time}"
+    )
 
     await bot.send_message(
         ADMIN_ID,
@@ -125,12 +162,15 @@ async def get_time(
         f"🧑 Имя: {data['name']}\n"
         f"📞 Телефон: {data['phone']}\n"
         f"💈 Услуга: {data['service']}\n"
-        f"⏰ Время: {data['time']}"
+        f"📅 Дата: {date}\n"
+        f"⏰ Время: {time}"
     )
 
     await callback.answer()
 
-    await state.clear()
+    await state.clear()       
+
+   
 
 
 @router.callback_query(F.data.startswith("cancel_"))
@@ -148,4 +188,42 @@ async def cancel_booking(callback: CallbackQuery):
         "❌ Запись отменена"
     )
 
-    await callback.answer()    
+    await callback.answer()   
+    
+     
+
+@router.message(F.text == "👤 Мои записи")
+async def my_bookings(message: Message):
+
+    bookings = get_user_bookings(
+        message.from_user.id
+    )
+
+    if not bookings:
+
+        await message.answer(
+            "❌ У вас пока нет записей"
+        )
+
+        return
+
+    for booking in bookings:
+
+        booking_id = booking[0]
+
+        cancel_booking_keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="❌ Отменить",
+                        callback_data=f"cancel_{booking_id}"
+                    )
+                ]
+            ]
+        )
+
+        await message.answer(
+            f"💈 {booking[4]}\n"
+            f"⏰ {booking[5]}",
+            reply_markup=cancel_booking_keyboard
+        )

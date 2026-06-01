@@ -4,4 +4,5 @@ class Order(StatesGroup):
     name = State()
     phone = State()
     service = State()
+    date = State()
     time = State()

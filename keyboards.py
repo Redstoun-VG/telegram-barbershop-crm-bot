@@ -4,39 +4,64 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
 )
+from datetime import datetime, timedelta
+from database import is_time_taken
+
+def get_time_keyboard(date):
+
+    times = [
+        "12:00",
+        "14:00",
+        "16:00",
+        "18:00"
+    ]
+
+    keyboard = []
+
+    for time in times:
+
+        if not is_time_taken(date, time):
+
+            keyboard.append(
+                [
+                    InlineKeyboardButton(
+                        text=time,
+                        callback_data=time
+                    )
+                ]
+            )
+
+    if not keyboard:
+
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    text="❌ Нет свободного времени",
+                    callback_data="no_time"
+                )
+            ]
+        )
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=keyboard
+    )
 
 keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="📅 Записаться")],
-        [KeyboardButton(text="💈 Прайс")]
+        [
+            KeyboardButton(text="👤 Мои записи"),
+            KeyboardButton(text="💈 Услуги")
+        ],
+        [
+            KeyboardButton(text="ℹ️ Инфо"),
+            KeyboardButton(text="💬 Поддержка")
+        ]
     ],
     resize_keyboard=True
 )
 
-time_keyboard = InlineKeyboardMarkup(
-    inline_keyboard=[
-        [
-            InlineKeyboardButton(
-                text="12:00",
-                callback_data="12:00"
-            ),
-            InlineKeyboardButton(
-                text="14:00",
-                callback_data="14:00"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="16:00",
-                callback_data="16:00"
-            ),
-            InlineKeyboardButton(
-                text="18:00",
-                callback_data="18:00"
-            )
-        ]
-    ]
-)
+
 
 service_keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -70,3 +95,29 @@ cancel_keyboard = InlineKeyboardMarkup(
         ]
     ]
 )
+
+
+def get_date_keyboard():
+
+    keyboard = []
+
+    today = datetime.now()
+
+    for i in range(14):
+
+        date = today + timedelta(days=i)
+
+        formatted_date = date.strftime("%d.%m")
+
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    text=f"📅 {formatted_date}",
+                    callback_data=formatted_date
+                )
+            ]
+        )
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=keyboard
+    )
