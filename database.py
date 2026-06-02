@@ -108,3 +108,12 @@ def get_clients():
     )
 
     return cursor.fetchall()    
+
+
+def get_total_bookings():
+
+    cursor.execute(
+        "SELECT COUNT(*) FROM clients"
+    )
+
+    return cursor.fetchone()[0]
