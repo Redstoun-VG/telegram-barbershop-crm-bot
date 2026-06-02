@@ -42,6 +42,35 @@ Production-ready Telegram CRM bot for barbershops and service businesses.
 
 The bot is deployed on Railway and uses PostgreSQL for data storage.
 
+## Docker
+
+Build image:
+
+```bash
+docker build -t barbershop-bot .
+```
+
+Run container:
+
+```bash
+docker run -d --name barbershop-bot \
+-e BOT_TOKEN=your_token \
+-e ADMIN_ID=your_admin_id \
+-e DATABASE_URL=your_database_url \
+barbershop-bot
+```
+
+## Environment Variables
+
+Required environment variables:
+
+| Variable     | Description                  |
+| ------------ | ---------------------------- |
+| BOT_TOKEN    | Telegram bot token           |
+| ADMIN_ID     | Telegram administrator ID    |
+| DATABASE_URL | PostgreSQL connection string |
+
+
 ## Screenshots
 
 ### Main Menu
