@@ -223,7 +223,8 @@ async def my_bookings(message: Message):
         )
 
         await message.answer(
-            f"💈 {booking[4]}\n"
-            f"⏰ {booking[5]}",
-            reply_markup=cancel_booking_keyboard
-        )
+    f"💈 {booking[4]}\n"
+    f"📅 {booking[5]}\n"
+    f"⏰ {booking[6]}",
+    reply_markup=cancel_booking_keyboard
+)
