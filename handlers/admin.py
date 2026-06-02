@@ -193,4 +193,119 @@ async def admin_panel(message: Message):
     await message.answer(
         "🔐 Админ панель",
         reply_markup=admin_keyboard
-    )    
+    ) 
+
+
+@router.message(F.text == "📊 Статистика")
+async def stats_button(message: Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    total = get_total_bookings()
+
+    today = datetime.now().strftime("%d.%m")
+
+    today_count = get_bookings_count_by_date(
+        today
+    )
+
+    await message.answer(
+        f"📊 Статистика\n\n"
+        f"📅 Всего записей: {total}\n"
+        f"🟢 Сегодня: {today_count}"
+    )
+
+  
+@router.message(F.text == "📅 Сегодня")
+async def today_button(message: Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    today = datetime.now().strftime("%d.%m")
+
+    bookings = get_bookings_by_date(today)
+
+    if not bookings:
+
+        await message.answer(
+            "📅 На сегодня записей нет"
+        )
+
+        return
+
+    text = f"📅 Записи на {today}\n\n"
+
+    for booking in bookings:
+
+        text += (
+            f"🧑 {booking[2]}\n"
+            f"📞 {booking[3]}\n"
+            f"💈 {booking[4]}\n"
+            f"⏰ {booking[6]}\n\n"
+        )
+
+    await message.answer(text)  
+
+
+@router.message(F.text == "📆 Неделя")
+async def week_button(message: Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    bookings = get_all_bookings()
+
+    if not bookings:
+
+        await message.answer(
+            "📅 Записей нет"
+        )
+
+        return
+
+    text = "📅 Все ближайшие записи\n\n"
+
+    for booking in bookings:
+
+        text += (
+            f"📅 {booking[5]}\n"
+            f"🧑 {booking[2]}\n"
+            f"💈 {booking[4]}\n"
+            f"⏰ {booking[6]}\n\n"
+        )
+
+    await message.answer(text)
+
+
+@router.message(F.text == "👥 Клиенты")
+async def clients_button(message: Message):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    clients = get_clients()
+
+    if not clients:
+
+        await message.answer(
+            "Клиентов пока нет"
+        )
+
+        return
+
+    text = "📋 Список клиентов:\n\n"
+
+    for client in clients:
+
+        text += (
+            f"🆔 ID: {client[0]}\n"
+            f"🧑 {client[2]}\n"
+            f"📞 {client[3]}\n"
+            f"💈 {client[4]}\n"
+            f"📅 {client[5]}\n"
+            f"⏰ {client[6]}\n\n"
+        )
+
+    await message.answer(text)    
