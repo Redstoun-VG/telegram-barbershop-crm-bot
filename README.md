@@ -44,4 +44,18 @@ The bot is deployed on Railway and uses PostgreSQL for data storage.
 
 ## Screenshots
 
-(Add screenshots here)
+### Main Menu
+
+![Main Menu](images/main-menu.png)
+
+### Booking Process
+
+![Booking](images/booking.png)
+
+### Personal Cabinet
+
+![Personal Cabinet](images/my-bookings.png)
+
+### Admin Panel
+
+![Admin Panel](images/admin-panel.png)
