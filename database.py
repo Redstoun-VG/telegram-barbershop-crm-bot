@@ -140,3 +140,17 @@ def get_all_bookings():
     )
 
     return cursor.fetchall()
+
+
+def get_bookings_count_by_date(date):
+
+    cursor.execute(
+        """
+        SELECT COUNT(*)
+        FROM clients
+        WHERE date = %s
+        """,
+        (date,)
+    )
+
+    return cursor.fetchone()[0]

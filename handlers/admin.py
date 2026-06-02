@@ -9,7 +9,8 @@ from database import (
     delete_client,
     get_total_bookings,
     get_bookings_by_date,
-    get_all_bookings
+    get_all_bookings,
+    get_bookings_count_by_date
 )
 
 router = Router()
@@ -91,9 +92,16 @@ async def stats(message: Message):
 
     total = get_total_bookings()
 
+    today = datetime.now().strftime("%d.%m")
+
+    today_count = get_bookings_count_by_date(
+        today
+    )
+
     await message.answer(
         f"📊 Статистика\n\n"
-        f"📅 Всего записей: {total}"
+        f"📅 Всего записей: {total}\n"
+        f"🟢 Сегодня: {today_count}"
     )
 
 
