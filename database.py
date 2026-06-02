@@ -117,3 +117,16 @@ def get_total_bookings():
     )
 
     return cursor.fetchone()[0]
+
+
+def get_bookings_by_date(date):
+
+    cursor.execute(
+        """
+        SELECT * FROM clients
+        WHERE date = %s
+        """,
+        (date,)
+    )
+
+    return cursor.fetchall()

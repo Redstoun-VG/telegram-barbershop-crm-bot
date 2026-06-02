@@ -1,4 +1,5 @@
 from aiogram import Router
+from datetime import datetime
 from aiogram.filters import Command
 from aiogram.types import Message
 from config import ADMIN_ID
@@ -6,7 +7,8 @@ from config import ADMIN_ID
 from database import (
     get_clients,
     delete_client,
-    get_total_bookings
+    get_total_bookings,
+    get_bookings_by_date
 )
 
 router = Router()
@@ -92,3 +94,40 @@ async def stats(message: Message):
         f"📊 Статистика\n\n"
         f"📅 Всего записей: {total}"
     )
+
+
+@router.message(Command("today"))
+async def today_bookings(message: Message):
+
+    if message.from_user.id != ADMIN_ID:
+
+        await message.answer(
+            "❌ У вас нет доступа"
+        )
+
+        return
+
+    today = datetime.now().strftime("%d.%m")
+
+    bookings = get_bookings_by_date(today)
+
+    if not bookings:
+
+        await message.answer(
+            "📅 На сегодня записей нет"
+        )
+
+        return
+
+    text = f"📅 Записи на {today}\n\n"
+
+    for booking in bookings:
+
+        text += (
+            f"🧑 {booking[2]}\n"
+            f"📞 {booking[3]}\n"
+            f"💈 {booking[4]}\n"
+            f"⏰ {booking[6]}\n\n"
+        )
+
+    await message.answer(text)    
