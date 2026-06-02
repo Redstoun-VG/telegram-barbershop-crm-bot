@@ -8,7 +8,8 @@ from database import (
     get_clients,
     delete_client,
     get_total_bookings,
-    get_bookings_by_date
+    get_bookings_by_date,
+    get_all_bookings
 )
 
 router = Router()
@@ -130,4 +131,40 @@ async def today_bookings(message: Message):
             f"⏰ {booking[6]}\n\n"
         )
 
-    await message.answer(text)    
+    await message.answer(text) 
+
+
+
+@router.message(Command("week"))
+async def week_bookings(message: Message):
+
+    if message.from_user.id != ADMIN_ID:
+
+        await message.answer(
+            "❌ У вас нет доступа"
+        )
+
+        return
+
+    bookings = get_all_bookings()
+
+    if not bookings:
+
+        await message.answer(
+            "📅 Записей нет"
+        )
+
+        return
+
+    text = "📅 Все ближайшие записи\n\n"
+
+    for booking in bookings:
+
+        text += (
+            f"📅 {booking[5]}\n"
+            f"🧑 {booking[2]}\n"
+            f"💈 {booking[4]}\n"
+            f"⏰ {booking[6]}\n\n"
+        )
+
+    await message.answer(text)

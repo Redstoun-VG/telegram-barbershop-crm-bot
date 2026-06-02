@@ -130,3 +130,13 @@ def get_bookings_by_date(date):
     )
 
     return cursor.fetchall()
+
+
+
+def get_all_bookings():
+
+    cursor.execute(
+        "SELECT * FROM clients"
+    )
+
+    return cursor.fetchall()
