@@ -121,3 +121,29 @@ def get_date_keyboard():
     return InlineKeyboardMarkup(
         inline_keyboard=keyboard
     )
+
+
+
+admin_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(
+                text="📊 Статистика"
+            )
+        ],
+        [
+            KeyboardButton(
+                text="📅 Сегодня"
+            ),
+            KeyboardButton(
+                text="📆 Неделя"
+            )
+        ],
+        [
+            KeyboardButton(
+                text="👥 Клиенты"
+            )
+        ]
+    ],
+    resize_keyboard=True
+)

@@ -3,6 +3,7 @@ from datetime import datetime
 from aiogram.filters import Command
 from aiogram.types import Message
 from config import ADMIN_ID
+from keyboards import admin_keyboard
 
 from database import (
     get_clients,
@@ -176,3 +177,20 @@ async def week_bookings(message: Message):
         )
 
     await message.answer(text)
+
+
+@router.message(Command("admin"))
+async def admin_panel(message: Message):
+
+    if message.from_user.id != ADMIN_ID:
+
+        await message.answer(
+            "❌ У вас нет доступа"
+        )
+
+        return
+
+    await message.answer(
+        "🔐 Админ панель",
+        reply_markup=admin_keyboard
+    )    
